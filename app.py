@@ -1,8 +1,30 @@
 from flask import Flask, Blueprint, render_template
-from database.database import Database
+import psycopg2
+import csv
 
 
 app_page = Blueprint('app', __name__, template_folder='templates/layouts')
+
+conn = psycopg2.connect(database="docs_db", user="postgres",
+                        password="`1qazxsw2", host="localhost", port="5432")
+
+cur = conn.cursor()
+cur.execute(
+    '''CREATE TABLE IF NOT EXISTS documents (id serial \
+    PRIMARY KEY, rubrics varchar(100), text text, created_date timestamp);''')
+
+with open('posts.csv', newline='', encoding='utf-8') as File:
+    file = list(csv.reader(File))[1:]
+    for row in file:
+        row[0] = row[0].replace("\'", '\"')
+        row[1] = row[1].replace("\'", '\"')
+        row[2] = row[2].replace("\'", '\"')
+        cur.execute(
+            f"INSERT INTO documents (rubrics, text, created_date) VALUES ('{row[2]}', '{row[0]}', '{row[1]}');")
+
+conn.commit()
+cur.close()
+conn.close()
 
 
 def create_app():
@@ -13,19 +35,19 @@ def create_app():
     app.register_error_handler(405, method_not_allowed)
     app.register_error_handler(404, page_not_found)
 
-    # docs_db = Database('docs_db')
-    # docs_db.create_table('documents', (('Title', 'text'), ('Data', 'text')))
-    # docs_db.drop_table('documents')
-    # docs_db.show_tables()
-    # docs_db.insert_data('documents', ('Test_title_1', 'Some_information_about_document_1'))
-    # docs_db.get_all_table_data('documents')
-
     return app
 
 
 @app_page.route('/')
 def home():
-    return render_template('app.html')
+    conn = psycopg2.connect(database="docs_db", user="postgres",
+                            password="`1qazxsw2", host="localhost", port="5432")
+    cur = conn.cursor()
+    cur.execute('''SELECT * FROM documents''')
+    data = cur.fetchall()
+    cur.close()
+    conn.close()
+    return render_template('app.html', data=data)
 
 
 @app_page.errorhandler(404)
