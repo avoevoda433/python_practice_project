@@ -1,47 +1,54 @@
-import sqlite3
+import psycopg2
+from cvs_read import read_csv
 
 
 class Database:
 
-    def __init__(self, db_name: str):
+    def __init__(self,
+                 db_name: str,
+                 user: str,
+                 password: str,
+                 host: str,
+                 port: str):
         self.db_name = db_name
+        self.user = user
+        self.password = password
+        self.host = host
+        self.port = port
 
     def __connection_db(self):
-        self.__connection = sqlite3.connect(self.db_name)
+        return psycopg2.connect(database=self.db_name, user=self.user,
+                                password=self.password, host=self.host, port=self.port)
 
-    def create_table(self, table_name: str, field_data: tuple):
-        self.__connection_db()
-        cursor = self.__connection.cursor()
-        cursor.execute(f'CREATE TABLE if not exists {table_name}(id integer PRIMARY KEY, '
-                       f'{", ".join([" ".join([field_name, field_type]) for field_name, field_type in field_data])})')
-        self.__connection.commit()
-        self.__connection.close()
+    def create_table(self):
+        conn = self.__connection_db()
+        cur = conn.cursor()
+        cur.execute(
+            '''CREATE TABLE IF NOT EXISTS documents (id serial \
+            PRIMARY KEY, rubrics varchar(100), text text, created_date timestamp);''')
+        conn.commit()
+        cur.close()
+        conn.close()
 
-    def drop_table(self, table_name: str):
-        self.__connection_db()
-        cursor = self.__connection.cursor()
-        cursor.execute(f'DROP table if exists {table_name}')
-        self.__connection.commit()
-        print('Table drop')
-        self.__connection.close()
+    def insert_data(self):
+        conn = self.__connection_db()
+        cur = conn.cursor()
+        file = read_csv('posts.cvs')
+        for row in file:
+            row[0] = row[0].replace("\'", '\"')
+            row[1] = row[1].replace("\'", '\"')
+            row[2] = row[2].replace("\'", '\"')
+            cur.execute(
+                f"INSERT INTO documents (rubrics, text, created_date) VALUES ('{row[2]}', '{row[0]}', '{row[1]}');")
+        conn.commit()
+        cur.close()
+        conn.close()
 
-    def show_tables(self):
-        self.__connection_db()
-        cursor = self.__connection.cursor()
-        cursor.execute('SELECT name from sqlite_master where type= "table"')
-        print(cursor.fetchall())
-        self.__connection.close()
-
-    def insert_data(self, table_name: str, data: tuple):
-        self.__connection_db()
-        cursor = self.__connection.cursor()
-        cursor.execute(f'INSERT INTO {table_name}("Title", "Data") VALUES(?, ?)', data)
-        self.__connection.close()
-
-    def get_all_table_data(self, table_name: str):
-        self.__connection_db()
-        cursor = self.__connection.cursor()
-        cursor.execute(f'SELECT * FROM {table_name}')
-        rows = cursor.fetchall()
-        for row in rows:
-            print(row)
+    def get_all_table_data(self):
+        conn = self.__connection_db()
+        cur = conn.cursor()
+        cur.execute('''SELECT * FROM documents''')
+        data = cur.fetchall()
+        cur.close()
+        conn.close()
+        return data
