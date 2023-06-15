@@ -52,3 +52,12 @@ class Database:
         cur.close()
         conn.close()
         return data
+
+    def get_dock_by_id(self, id_dock):
+        conn = self.__connection_db()
+        cur = conn.cursor()
+        cur.execute(f'SELECT * FROM documents WHERE id={id_dock}')
+        data = cur.fetchall()
+        cur.close()
+        conn.close()
+        return data

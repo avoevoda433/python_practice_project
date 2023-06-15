@@ -1,4 +1,4 @@
-from flask import Flask, Blueprint, render_template
+from flask import Flask, Blueprint, render_template, request
 from database.database import Database
 
 
@@ -21,7 +21,13 @@ def create_app():
 
 @app_page.route('/')
 def home():
-    return render_template('app.html', data=docs_db.get_all_table_data())
+    return render_template('app.html', data=[])
+
+
+@app_page.route('/find/', methods=['GET', 'POST'])
+def find():
+    if request.method == 'GET':
+        return render_template('app.html', data=docs_db.get_dock_by_id(request.args.get("search")))
 
 
 @app_page.errorhandler(404)
