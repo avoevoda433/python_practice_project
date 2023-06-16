@@ -53,11 +53,18 @@ class Database:
         conn.close()
         return data
 
-    def get_dock_by_id(self, id_dock):
+    def get_dock_by_id(self, id_doc):
         conn = self.__connection_db()
         cur = conn.cursor()
-        cur.execute(f'SELECT * FROM documents WHERE id={id_dock}')
+        cur.execute(f'SELECT * FROM documents WHERE id={id_doc}')
         data = cur.fetchall()
         cur.close()
         conn.close()
         return data
+
+    def delete_by_id(self, id_doc):
+        conn = self.__connection_db()
+        cur = conn.cursor()
+        cur.execute(f'DELETE FROM documents WHERE id={id_doc}')
+        cur.close()
+        conn.close()

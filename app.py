@@ -1,4 +1,4 @@
-from flask import Flask, Blueprint, render_template, request
+from flask import Flask, Blueprint, render_template, request, redirect
 from database.database import Database
 
 
@@ -27,6 +27,9 @@ def home():
 @app_page.route('/find/', methods=['GET', 'POST'])
 def find():
     if request.method == 'GET':
+        return render_template('app.html', data=docs_db.get_dock_by_id(request.args.get("search")))
+    elif request.method == 'POST':
+        docs_db.delete_by_id(request.args.get("search"))
         return render_template('app.html', data=docs_db.get_dock_by_id(request.args.get("search")))
 
 
