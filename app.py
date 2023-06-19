@@ -1,5 +1,12 @@
 from flask import Flask, Blueprint, render_template, request, redirect
 from database.database import Database
+from elasticsearch import Elasticsearch
+
+
+es = Elasticsearch('http://localhost:9200')
+es.index(index='my_index', id='1', document={'text': 'this is a test'})
+es.index(index='my_index', id='2', document={'text': 'a second test'})
+resp = es.search(index='my_index', query={'match': {'text': 'this test'}})
 
 
 app_page = Blueprint('app', __name__, template_folder='templates/layouts')
