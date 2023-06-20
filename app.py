@@ -1,19 +1,12 @@
 from flask import Flask, Blueprint, render_template, request, redirect
 from database.database import Database
-from elasticsearch import Elasticsearch
-
-
-es = Elasticsearch('http://localhost:9200')
-es.index(index='my_index', id='1', document={'text': 'this is a test'})
-es.index(index='my_index', id='2', document={'text': 'a second test'})
-resp = es.search(index='my_index', query={'match': {'text': 'this test'}})
+from database.elastic import Elastic
 
 
 app_page = Blueprint('app', __name__, template_folder='templates/layouts')
 docs_db = Database(db_name="docs_db", user="postgres",
                    password="`1qazxsw2", host="localhost", port="5432")
-docs_db.create_table()
-docs_db.insert_data()
+es = Elastic('http://localhost:9200', 'my_index')
 
 
 def create_app():
@@ -23,6 +16,13 @@ def create_app():
     app.register_error_handler(400, handle_bad_request)
     app.register_error_handler(405, method_not_allowed)
     app.register_error_handler(404, page_not_found)
+    docs_db.create_table()
+    if not len(docs_db.get_all_table_data()):
+        docs_db.insert_data()
+        print(len(docs_db.get_all_table_data()))
+        for row in docs_db.get_all_table_data():
+            es.add_index(id_ind=str(row[0]), data={'text': str(row[2])})
+    print(es.find_document('Привет'))
     return app
 
 
