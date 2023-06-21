@@ -22,19 +22,25 @@ def create_app():
         print(len(docs_db.get_all_table_data()))
         for row in docs_db.get_all_table_data():
             es.add_index(id_ind=str(row[0]), data={'text': str(row[2])})
-    print(es.find_document('Привет'))
     return app
 
 
-@app_page.route('/')
-def home():
-    return render_template('app.html', data=[])
+# @app_page.route('/')
+# def home():
+#     return render_template('app.html', data=[])
 
 
-@app_page.route('/find/', methods=['GET', 'POST'])
+@app_page.route('/', methods=['GET', 'POST'])
 def find():
+    if not request.args.get("search"):
+        return render_template('app.html', data=[])
     if request.method == 'GET':
-        return render_template('app.html', data=docs_db.get_dock_by_id(request.args.get("search")))
+        res = es.find_document(request.args.get('search'))
+        doc_id = [i['_id'] for i in res['hits']['hits']]
+        data = [docs_db.get_dock_by_id(i) for i in doc_id if int(i) <= 1500]
+        print(data)
+        print(docs_db.get_all_table_data()[:5])
+        return render_template('app.html', data=data)
     elif request.method == 'POST':
         docs_db.delete_by_id(request.args.get("search"))
         return render_template('app.html', data=docs_db.get_dock_by_id(request.args.get("search")))
