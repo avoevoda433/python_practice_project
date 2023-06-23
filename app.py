@@ -34,16 +34,17 @@ def create_app():
 def find():
     if not request.args.get("search"):
         return render_template('app.html', data=[])
-    if request.method == 'GET':
-        res = es.find_document(request.args.get('search'))
-        doc_id = [i['_id'] for i in res['hits']['hits']]
-        data = [docs_db.get_dock_by_id(i) for i in doc_id if int(i) <= 1500]
-        data.sort(key=lambda x: x[0][3])
-        return render_template('app.html', data=data)
-    elif request.method == 'POST':
-        docs_db.delete_by_id(request.args.get("search"))
-        es.delete(request.args.get("search"))
-        return render_template('app.html', data=docs_db.get_dock_by_id(request.args.get("search")))
+    if request.method == "GET":
+        if not request.form["id"]:
+            res = es.find_document(request.args.get('search'))
+            doc_id = [i['_id'] for i in res['hits']['hits']]
+            data = [docs_db.get_dock_by_id(i) for i in doc_id if int(i) <= 1500]
+            data.sort(key=lambda x: x[0][3])
+            return render_template('app.html', data=data)
+    elif request.form["id"]:
+        docs_db.delete_by_id(request.form["id"])
+        es.delete(request.form["id"])
+        return render_template('app.html', data=[])
 
 
 @app_page.errorhandler(404)

@@ -33,12 +33,12 @@
                   <tbody>
                     {% for row in data %}
                     <tr>
-                        <td>{{ row[0][0] }}</td>
+                        <td><input type="hidden" name="id" value="{{ row[0][0] }}">{{ row[0][0] }}</td>
                         <td>{{ row[0][1] }}</td>
                         <td>{{ row[0][2] }}</td>
                         <td>{{ row[0][3] }}</td>
                         <td>
-                            <form method="post">
+                            <form method="get">
                                 <button type="submit">Delete</button>
                             </form>
                         </td>
