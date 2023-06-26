@@ -30,21 +30,22 @@ def create_app():
 #     return render_template('app.html', data=[])
 
 
-@app_page.route('/', methods=['GET', 'POST'])
+@app_page.route('/', methods=['GET'])
 def find():
     if not request.args.get("search"):
         return render_template('app.html', data=[])
     if request.method == "GET":
-        if not request.form["id"]:
-            res = es.find_document(request.args.get('search'))
-            doc_id = [i['_id'] for i in res['hits']['hits']]
-            data = [docs_db.get_dock_by_id(i) for i in doc_id if int(i) <= 1500]
-            data.sort(key=lambda x: x[0][3])
-            return render_template('app.html', data=data)
-    elif request.form["id"]:
-        docs_db.delete_by_id(request.form["id"])
-        es.delete(request.form["id"])
-        return render_template('app.html', data=[])
+        res = es.find_document(request.args.get('search'))
+        doc_id = [i['_id'] for i in res['hits']['hits']]
+        data = [docs_db.get_dock_by_id(i) for i in doc_id if int(i) <= 1500]
+        data.sort(key=lambda x: x[0][3])
+        return render_template('app.html', data=data)
+
+
+@app_page.route('/<int:doc_id>')
+def document(doc_id):
+    doc = docs_db.get_dock_by_id(doc_id)
+    return render_template('document.html', row=doc)
 
 
 @app_page.errorhandler(404)
