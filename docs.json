@@ -1,0 +1,133 @@
+ {
+    "swagger": "2.0",
+    "basePath": "/api/v1",
+    "paths": {
+        "/docs/": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Get the docs list"
+                    }
+                },
+                "operationId": "get_docs_api",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "docs"
+                ]
+            }
+        },
+        "/docs/search": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Get the search doc list"
+                    },
+                    "400": {
+                        "description": "Docs not found"
+                    }
+                },
+                "operationId": "get_search_docs_api",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "docs"
+                ]
+            }
+        },
+        "/docs/{doc_id}": {
+            "parameters": [
+                {
+                    "name": "doc_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "integer"
+                }
+            ],
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Get the doc list"
+                    },
+                    "400": {
+                        "description": "Doc not found"
+                    }
+                },
+                "operationId": "get_doc_api",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "docs"
+                ]
+            },
+            "delete": {
+                "responses": {
+                    "200": {
+                        "description": "Delete the doc"
+                    },
+                    "400": {
+                        "description": "Doc not delete"
+                    }
+                },
+                "operationId": "delete_doc_api",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "docs"
+                ]
+            }
+        }
+    },
+    "info": {
+        "title": "Docs find API",
+        "version": "1.0"
+    },
+    "produces": [
+        "application/json"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "tags": [
+        {
+            "name": "docs",
+            "description": "Docs operations"
+        }
+    ],
+    "responses": {
+        "ParseError": {
+            "description": "When a mask can't be parsed"
+        },
+        "MaskError": {
+            "description": "When any error occurs on mask"
+        }
+    }
+}
