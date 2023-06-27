@@ -14,7 +14,7 @@ class Elastic:
         self.__connection().index(index=self.index, id=id_ind, document=data)
 
     def find_document(self, response: str):
-        return self.__connection().search(index=self.index, query={'match': {'text': response}}, size=21)
+        return self.__connection().search(index=self.index, query={'match': {'text': response}}, size=20)
 
     def delete(self, id_ind: str):
         self.__connection().delete(index=self.index, id=id_ind)

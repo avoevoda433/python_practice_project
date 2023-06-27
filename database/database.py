@@ -66,5 +66,6 @@ class Database:
         conn = self.__connection_db()
         cur = conn.cursor()
         cur.execute(f'DELETE FROM documents WHERE id={id_doc}')
+        conn.commit()
         cur.close()
         conn.close()
