@@ -1,20 +1,20 @@
 from http import HTTPStatus
-
 import elasticsearch
 import psycopg2.errors
 from flask import Flask, Blueprint, render_template, request
 from flask_restx import Api, fields, Resource, abort
 from database.database import Database
 from database.elastic import Elastic
+import config_data
 
 
 blueprint = Blueprint('app', __name__, url_prefix='/api/v1')
 api = Api(blueprint, version='1.0', title='Docs find API')
 ns = api.namespace('docs', description='Docs operations')
 api.add_namespace(ns)
-docs_db = Database(db_name="docs_db", user="postgres",
-                   password="`1qazxsw2", host="localhost", port="5432")
-es = Elastic('http://localhost:9200', 'my_index')
+docs_db = Database(db_name=config_data.db_name, user=config_data.db_user,
+                   password=config_data.db_password, host=config_data.db_host, port=config_data.db_port)
+es = Elastic(f'http://{config_data.elastic_port}:{config_data.elastic_port}', config_data.elastic_index)
 
 
 docs_model = api.model('Docs',
